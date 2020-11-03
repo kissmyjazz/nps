@@ -9,7 +9,7 @@ library(kableExtra)
 library(lmerTest)
 library(merTools)
 library(ggsci)
-options(options(scipen=999))
+options(scipen=999)
 theme_set(theme_apa(base_size = 14) + theme(legend.position = "bottom"))
 
 path <- here("raw_data", "NPS_madalad_Denisile.xlsx")
@@ -24,12 +24,6 @@ df <- df %>% mutate_at(1:6, factor) %>% mutate(kestvuskategooria =
   dplyr::arrange(rott, viieminutine_lqik, peak_no_lqigus) 
 # path <- here("mod_data", "NPS_data.rds")
 # saveRDS(df, path)
-
-df_summary_coarse <- df %>% group_by(HE_LE, rott, viieminutine_lqik,
-                                     duration_cat) %>% 
-  summarise(peak_frequency = mean(average_peak_frequency), 
-            peak_amplitude = mean(average_peak_amplitude), 
-            duration = mean(duration_ms), vocalisations = n())
 
 df_short <- df %>% dplyr::filter(kestvuskategooria %in% 
                                    c("<12 ms", "12-99 ms", "100-299 ms")) %>% 
@@ -80,12 +74,6 @@ g_short_avg_peak_amp_vs_dur <- df_short %>% ggplot(aes(x = average_peak_amplitud
                                                        colour = kestvuskategooria)) + 
   geom_point(alpha = 0.4) + scale_color_jco() + facet_grid(cols = vars(HE_LE))
 g_short_avg_peak_amp_vs_dur
-################################################################################
-g_vocal_by_dur <- df_summary_coarse %>% 
-  ggplot(aes(x = viieminutine_lqik, y = vocalisations, color = rott, 
-             linetype = HE_LE)) + 
-  geom_line(aes(group = rott)) + facet_grid(cols = vars(duration_cat))
-g_vocal_by_dur
 ################################################################################
 g_avg_peak_freq_vs_dur_id_le <- df %>% dplyr::filter(HE_LE == "LE") %>% 
   ggplot(aes(x = duration_ms, y = average_peak_frequency, colour = rott)) + 
