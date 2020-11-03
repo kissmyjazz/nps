@@ -1,0 +1,179 @@
+
+---
+title: "Analysis of NPS injection data"
+date: "`r Sys.Date()`"
+author:
+- name: Denis Matrov
+  affiliation: '1'
+  corresponding: yes
+  address: Postal address
+  email: jazzhole@gmail.com
+shorttitle: outliers
+output:
+  papaja::apa6_pdf: default
+  pdf_document: default
+keywords:
+- NPS
+- HE/LE
+wordcount: X
+floatsintext: no
+figurelist: no
+tablelist: no
+footnotelist: no
+linenumbers: yes
+mask: no
+draft: no
+documentclass: apa6
+classoption: man
+affiliation:
+- id: '1'
+  institution: Tallinn University
+header-includes:
+  - \usepackage{tikz}
+  - \usepackage{array}
+  - \usepackage{caption}
+  - \usepackage{graphicx}
+  - \usepackage{siunitx}
+  - \usepackage{colortbl}
+  - \usepackage{multirow}
+  - \usepackage{hhline}
+  - \usepackage{calc}
+  - \usepackage{tabularx}
+  - \usepackage{threeparttable}
+  - \usepackage{wrapfig}
+  - \usepackage{adjustbox}
+---
+
+```{r setup, echo = FALSE, include = FALSE, cache=FALSE}
+library(papaja)
+library(scales)
+library(broom)
+library(broom.mixed)
+library(here)
+library(tidyverse)
+library(nlme)
+library(kableExtra)
+library(ggsci)
+library(huxtable)
+library(ggeffects)
+library(mgcv)
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(
+  cache = TRUE,
+  cache.comments = FALSE,
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  error = FALSE,
+  echo = FALSE,
+  strip.white = TRUE,
+  comment = "#>",
+  fig.path = "../figures/",
+  results = "asis",
+  tidy = "styler",
+  dev = c('pdf', 'tiff'),
+  dev.args = list(pdf = list(colormodel = 'cmyk'), 
+                  tiff = list(compression = 'lzw')),
+  dpi = 600,
+  fig.width = 7,
+  fig.height = 7,
+  concordance = TRUE,
+  global.par = TRUE
+)
+
+par(font.main = 1, cex.main = 1.05)
+options(knitr.table.format = "latex", scipen = 999)
+options(huxtable.long_minus = TRUE)
+theme_set(theme_apa(base_size = 14) + theme(legend.position = "bottom"))
+```
+
+```{r data-load, cache=TRUE}
+path <- here("models", "m_dur_short_lme.rds")
+m_dur_short_1 <- read_rds(path)
+path <- here("models", "m_dur_short_gam.rds")
+m_dur_short_2 <- read_rds(path)
+
+path <- here("models", "m_dur_long_lme.rds")
+m_dur_long_1 <- read_rds(path)
+path <- here("models", "m_dur_long_gam.rds")
+m_dur_long_2 <- read_rds(path)
+
+path <- here("models", "m_freq_short_lme.rds")
+m_freq_short_1 <- read_rds(path)
+path <- here("models", "m_freq_short_gam.rds")
+m_freq_short_2 <- read_rds(path)
+
+path <- here("models", "m_freq_long_lme.rds")
+m_freq_long_1 <- read_rds(path)
+path <- here("models", "m_freq_long_gam.rds")
+m_freq_long_2 <- read_rds(path)
+
+path <- here("models", "m_ampl_short_lme.rds")
+m_ampl_short_1 <- read_rds(path)
+path <- here("models", "m_ampl_short_gam.rds")
+m_ampl_short_2 <- read_rds(path)
+
+path <- here("models", "m_ampl_long_lme.rds")
+m_ampl_long_1 <- read_rds(path)
+path <- here("models", "m_ampl_long_gam.rds")
+m_ampl_long_2 <- read_rds(path)
+```
+
+```{r load-graphs, cache=TRUE}
+path <- here("graphs", "g_dur_short_lme.rds")
+g_dur_short_1 <- read_rds(path)
+path <- here("graphs", "g_dur_short_gam.rds")
+g_dur_short_2 <- read_rds(path)
+
+path <- here("graphs", "g_dur_long_lme.rds")
+g_dur_long_1 <- read_rds(path)
+path <- here("graphs", "g_dur_long_gam.rds")
+g_dur_long_2 <- read_rds(path)
+
+path <- here("graphs", "g_freq_short_lme.rds")
+g_freq_short_1 <- read_rds(path)
+path <- here("graphs", "g_freq_short_gam.rds")
+g_freq_short_2 <- read_rds(path)
+
+path <- here("graphs", "g_freq_long_lme.rds")
+g_freq_long_1 <- read_rds(path)
+path <- here("graphs", "g_freq_long_gam.rds")
+g_freq_long_2 <- read_rds(path)
+
+path <- here("graphs", "g_ampl_short_lme.rds")
+g_ampl_short_1 <- read_rds(path)
+path <- here("graphs", "g_ampl_short_gam.rds")
+g_ampl_short_2 <- read_rds(path)
+
+path <- here("graphs", "g_ampl_long_lme.rds")
+g_ampl_long_1 <- read_rds(path)
+path <- here("graphs", "g_ampl_long_gam.rds")
+g_ampl_long_2 <- read_rds(path)
+```
+
+## General approach
+Data were divided by vocalization duration into two datasets: the fist dataset consisted of all vocalizations up to 299 ms (inclusively) in duration (short vocalizations), the second dataset consisted of all vocalizations of 300 ms and longer (long vocalizations). Only rats that received NPS injections were included in the analysis. The aim of the analysis was to model each: the duration of the average vocalization, average peak frequency, and average peak amplitude - as predicted by the exploratory phenotype and measurement interval. Data were nested within time bins which were further nested within rats. Such hierarchical structure was specified as random effects to account for correlated structure of the data collected from the same rat. Two modelling frameworks were used: linear mixed-effects were fitted with "nlme" package (version 3.1-148), generalized additive models were fitted with "mgcv" package (version 1.8-31). 
+Likelihood ratio tests and Akaike information criterion (AIC) was used to select the best fitting model within model category.
+
+## Linear mixed models
+Data were fitted using restricted maximum likelihood (REML) for parameter estimation or using maximum likelihood (ML) estimation for nested model comparisons. First order autoregressive structure was specified for the residuals for each rat to account for temporal dependence of measurements. To account for complicated temporal dependence of the outcome variable, the overall time course of outcome variable was modelled with a third-order (cubic) orthogonal polynomial with fixed effects of phenotype on all time
+terms. Random effects were generally also modelled on all time terms. The HE phenotype was treated as the reference (baseline) and relative parameters estimated for
+the LE phenotype. The time-dependence of the outcome was non-linear and in the most cases the effect of phenotype was spread between orthogonal polynomials of each order, therefore another approach was to combine time-varying non-linear effects into a cubic regression spline and model the phenotype effect as the difference between two splines for LE- and HE-rats.
+
+## Generalyzed additive models
+As mentioned above, the time-dependent trajectory was modelled as time and time by phenotype using cubic regression spline of 5 knots. The random effects were specified similarly to linear mixed models, but instead of orthogonal polynomial they were modelled on time splines. The distribution of outcome variable was modelled by either Gaussian or Gamma distributions, whichever fit best based on AIC score.
+
+## Model visualization
+The mean of the actual data is plotted as points for each time bin. The model-fitted predictions are plotted as connected line segments.
+
+## Linear models of vocalization durations
+
+```{r duration-lme, cache=TRUE}
+huxreg(m_dur_short_1,  m_dur_long_1, bold_signif = 0.05, error_pos = "same", 
+       statistics = "AIC")
+```
+
+
+
+

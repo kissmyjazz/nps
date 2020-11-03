@@ -11,11 +11,8 @@ library(lmerTest)
 library(merTools)
 library(ggsci)
 library(huxtable)
-library(broom)
-library(broom.mixed)
 library(ggeffects)
 library(mgcv)
-library(fastDummies)
 options(scipen=999)
 options(huxtable.long_minus = TRUE)
 theme_set(theme_apa(base_size = 14) + theme(legend.position = "bottom"))
@@ -75,6 +72,9 @@ g_m_dur_short_1 <- ggplot(df_short,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Third order polynomial model" )
 g_m_dur_short_1
+
+path <- here("graphs", "g_dur_short_lme.rds")
+saveRDS(g_m_dur_short_1, path)
 ################################################################################
 # fitting a smooth function of time and random intercept and slope
 # this model fits better
@@ -105,12 +105,16 @@ g_m_dur_short_2 <- ggplot(df_short,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Cubic regression spline model")
 g_m_dur_short_2
+
+path <- here("graphs", "g_dur_short_gam.rds")
+saveRDS(g_m_dur_short_2, path)
 ################################################################################
 # long calls
 m_dur_long_1 <- lme(duration_ms ~ (ot1 + ot2 + ot3)*HE_LE,
                     random = list(rott =~ ot1 + ot2 + ot3),
                     data = df_long, method = "REML",
-                    correlation = corAR1(form = ~ 1|rott))
+                    correlation = corAR1(form = ~ 1|rott),
+                    control = lmeControl(opt = "optim", optimMethod = "SANN"))
 summary(m_dur_long_1)
 path <- here("models", "m_dur_long_lme.rds")
 saveRDS(m_dur_long_1, path)
@@ -129,6 +133,9 @@ g_m_dur_long_1 <- ggplot(df_long,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Third order polynomial model" )
 g_m_dur_long_1
+
+path <- here("graphs", "g_dur_long_lme.rds")
+saveRDS(g_m_dur_long_1, path)
 ################################################################################
 # fitting a smooth function of time and random intercept and slope
 # this model fits better
@@ -159,6 +166,9 @@ g_m_dur_long_2 <- ggplot(df_long,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Cubic regression spline model")
 g_m_dur_long_2
+
+path <- here("graphs", "g_dur_long_gam.rds")
+saveRDS(g_m_dur_long_2, path)
 ################################################################################
 ################################################################################
 # models of frequency
@@ -185,6 +195,9 @@ g_m_freq_short_1 <- ggplot(df_short,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Third order polynomial model")
 g_m_freq_short_1
+
+path <- here("graphs", "g_freq_short_lme.rds")
+saveRDS(g_m_freq_short_1, path)
 ################################################################################
 fmla_freq_short_2 <- average_peak_frequency ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -213,6 +226,9 @@ g_m_freq_short_2 <- ggplot(df_short,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Cubic regression spline model")
 g_m_freq_short_2
+
+path <- here("graphs", "g_freq_short_gam.rds")
+saveRDS(g_m_freq_short_2, path)
 ################################################################################
 # long calls
 m_freq_long_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
@@ -237,6 +253,9 @@ g_m_freq_long_1 <- ggplot(df_long,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Third order polynomial model")
 g_m_freq_long_1
+
+path <- here("graphs", "g_freq_long_lme.rds")
+saveRDS(g_m_freq_long_1, path)
 ################################################################################
 fmla_freq_long_2 <- average_peak_frequency ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -265,6 +284,9 @@ g_m_freq_long_2 <- ggplot(df_long,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Cubic regression spline model")
 g_m_freq_long_2
+
+path <- here("graphs", "g_freq_long_gam.rds")
+saveRDS(g_m_freq_long_2, path)
 ################################################################################
 ################################################################################
 # models of amplitude
@@ -291,6 +313,9 @@ g_m_ampl_short_1 <- ggplot(df_short,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Third order polynomial model")
 g_m_ampl_short_1
+
+path <- here("graphs", "g_ampl_short_lme.rds")
+saveRDS(g_m_ampl_short_1, path)
 ################################################################################
 fmla_ampl_short_2 <- average_peak_amplitude ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -319,6 +344,9 @@ g_m_ampl_short_2 <- ggplot(df_short,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Cubic regression spline model")
 g_m_ampl_short_2
+
+path <- here("graphs", "g_ampl_short_gam.rds")
+saveRDS(g_m_ampl_short_2, path)
 ################################################################################
 # long calls
 m_ampl_long_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
@@ -343,6 +371,9 @@ g_m_ampl_long_1 <- ggplot(df_long,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Third order polynomial model")
 g_m_ampl_long_1
+
+path <- here("graphs", "g_ampl_long_lme.rds")
+saveRDS(g_m_ampl_long_1, path)
 ################################################################################
 fmla_ampl_long_2 <- average_peak_amplitude ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -371,4 +402,7 @@ g_m_ampl_long_2 <- ggplot(df_long,
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
        title = "Cubic regression spline model")
 g_m_ampl_long_2
+
+path <- here("graphs", "g_ampl_long_gam.rds")
+saveRDS(g_m_ampl_long_2, path)
 ################################################################################
