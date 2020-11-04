@@ -12,6 +12,7 @@ shorttitle: outliers
 output:
   papaja::apa6_pdf: default
   pdf_document: default
+urlcolor: blue
 keywords:
 - NPS
 - HE/LE
@@ -55,6 +56,7 @@ library(nlme)
 library(kableExtra)
 library(ggsci)
 library(huxtable)
+library(texreg)
 library(ggeffects)
 library(mgcv)
 # Seed for random number generation
@@ -154,26 +156,119 @@ g_ampl_long_2 <- read_rds(path)
 
 ## General approach
 Data were divided by vocalization duration into two datasets: the fist dataset consisted of all vocalizations up to 299 ms (inclusively) in duration (short vocalizations), the second dataset consisted of all vocalizations of 300 ms and longer (long vocalizations). Only rats that received NPS injections were included in the analysis. The aim of the analysis was to model each: the duration of the average vocalization, average peak frequency, and average peak amplitude - as predicted by the exploratory phenotype and measurement interval. Data were nested within time bins which were further nested within rats. Such hierarchical structure was specified as random effects to account for correlated structure of the data collected from the same rat. Two modelling frameworks were used: linear mixed-effects were fitted with "nlme" package (version 3.1-148), generalized additive models were fitted with "mgcv" package (version 1.8-31). 
-Likelihood ratio tests and Akaike information criterion (AIC) was used to select the best fitting model within model category.
+Likelihood ratio tests and Akaike information criterion (AIC) were used to select the best fitting model within each model category.
 
-## Linear mixed models
+## Linear mixed models (LMM)
 Data were fitted using restricted maximum likelihood (REML) for parameter estimation or using maximum likelihood (ML) estimation for nested model comparisons. First order autoregressive structure was specified for the residuals for each rat to account for temporal dependence of measurements. To account for complicated temporal dependence of the outcome variable, the overall time course of outcome variable was modelled with a third-order (cubic) orthogonal polynomial with fixed effects of phenotype on all time
 terms. Random effects were generally also modelled on all time terms. The HE phenotype was treated as the reference (baseline) and relative parameters estimated for
 the LE phenotype. The time-dependence of the outcome was non-linear and in the most cases the effect of phenotype was spread between orthogonal polynomials of each order, therefore another approach was to combine time-varying non-linear effects into a cubic regression spline and model the phenotype effect as the difference between two splines for LE- and HE-rats.
 
-## Generalyzed additive models
-As mentioned above, the time-dependent trajectory was modelled as time and time by phenotype using cubic regression spline of 5 knots. The random effects were specified similarly to linear mixed models, but instead of orthogonal polynomial they were modelled on time splines. The distribution of outcome variable was modelled by either Gaussian or Gamma distributions, whichever fit best based on AIC score.
+## Generalyzed additive models (GAM)
+As mentioned above, the time-dependent trajectory was modelled as time and time by phenotype using cubic regression spline of 5 knots. The effect of exploratory phenotype was calculated as a difference spline with regards to the reference spline calculated on HE-rats ([this blog post explains the method](https://fromthebottomoftheheap.net/2017/12/14/difference-splines-ii/)). The random effects were specified similarly to linear mixed models, but instead of orthogonal polynomials they were modelled on time splines. The distribution of outcome variable was modelled by either Gaussian or Gamma distribution, whichever fit best based on AIC score and diagnostic plots. Final models were fitted using REML.
 
 ## Model visualization
-The mean of the actual data is plotted as points for each time bin. The model-fitted predictions are plotted as connected line segments.
+The means of the actual data are plotted as points within each time bin. The model-fitted predictions are plotted as connected line segments.
 
-## Linear models of vocalization durations
+## Models of vocalizations' durations
+See table \@ref(tab:duration-lme) and figure \@ref(fig:duration-lme-graphs) for results from LMM. See table \@ref(tab:duration-gam) and figure \@ref(fig:duration-gam-graphs) for results from GAM. 
 
 ```{r duration-lme, cache=TRUE}
-huxreg(m_dur_short_1,  m_dur_long_1, bold_signif = 0.05, error_pos = "same", 
-       statistics = "AIC")
+coef_names <- tidy(m_dur_long_1) %>% 
+  filter(str_starts(term, "sd_|cor_")) %>% 
+  pull(term)
+huxreg("Short" = m_dur_short_1, "Long" = m_dur_long_1, bold_signif = 0.05, 
+       error_pos = "same", 
+       statistics = c("AIC", "nobs"), omit_coefs = coef_names) %>% 
+  set_caption("Linear mixed models of vocalizations' durations")
 ```
 
 
+```{r dur-gam, cache=TRUE}
+texreg(list(m_dur_short_2, m_dur_long_2), bold = 0.05, 
+       single.row = TRUE, custom.model.names = c("Short", "Long"),
+       include.rsquared = FALSE, include.nsmooth = FALSE,
+       include.bic = FALSE, include.loglik = FALSE, include.deviance = FALSE,
+       include.dev.expl = FALSE, include.dispersion = FALSE, include.gcv = FALSE,
+       label = "tab:duration-gam", caption = "Generalized additive models of vocalizations' durations", caption.above = TRUE)
+```
+
+(ref:duration-lme-gr) Fitted durations predicted by LMM. A: short vocalizations, B: long vocalizations.
+
+```{r duration-lme-graphs, results="asis", fig.height=11, fig.width=10, fig.cap = "(ref:duration-lme-gr)", cache=TRUE}
+cowplot::plot_grid(g_dur_short_1, g_dur_long_1, ncol = 1, labels = "AUTO")
+```
+
+(ref:duration-gam-gr) Fitted durations predicted by GAM. A: short vocalizations, B: long vocalizations.
+
+```{r duration-gam-graphs, results="asis", fig.height=11, fig.width=10, fig.cap = "(ref:duration-gam-gr)", cache=TRUE}
+cowplot::plot_grid(g_dur_short_2, g_dur_long_2, ncol = 1, labels = "AUTO")
+```
+
+## Models of vocalizations' average peak frequency
+See table \@ref(tab:freq-lme) and figure \@ref(fig:freq-lme-graphs) for results from LMM. See table \@ref(tab:freq-gam) and figure \@ref(fig:freq-gam-graphs) for results from GAM. 
+
+```{r freq-lme, cache=TRUE}
+coef_names <- tidy(m_freq_long_1) %>% 
+  filter(str_starts(term, "sd_|cor_")) %>% 
+  pull(term)
+huxreg("Short" = m_freq_short_1, "Long" = m_freq_long_1, bold_signif = 0.05, 
+       error_pos = "same", 
+       statistics = c("AIC", "nobs"), omit_coefs = coef_names) %>% 
+  set_caption("Linear mixed models of vocalizations' average peak frequency")
+```
 
 
+```{r frequency-gam, cache=TRUE}
+texreg(list(m_freq_short_2, m_freq_long_2), bold = 0.05, 
+       single.row = TRUE, custom.model.names = c("Short", "Long"),
+       include.rsquared = FALSE, include.nsmooth = FALSE,
+       include.bic = FALSE, include.loglik = FALSE, include.deviance = FALSE,
+       include.dev.expl = FALSE, include.dispersion = FALSE, include.gcv = FALSE,
+       label = "tab:freq-gam", caption = "Generalized additive models of vocalizations' average peak frequency", caption.above = TRUE)
+```
+
+(ref:freq-lme-gr) Fitted average peak frequencies predicted by LMM. A: short vocalizations, B: long vocalizations.
+
+```{r freq-lme-graphs, results="asis", fig.height=11, fig.width=10, fig.cap = "(ref:freq-lme-gr)", cache=TRUE}
+cowplot::plot_grid(g_freq_short_1, g_freq_long_1, ncol = 1, labels = "AUTO")
+```
+
+(ref:freq-gam-gr) Fitted average peak frequencies predicted by GAM. A: short vocalizations, B: long vocalizations.
+
+```{r freq-gam-graphs, results="asis", fig.height=11, fig.width=10, fig.cap = "(ref:duration-gam-gr)", cache=TRUE}
+cowplot::plot_grid(g_freq_short_2, g_freq_long_2, ncol = 1, labels = "AUTO")
+```
+
+## Models of vocalizations' average peak amplitude
+See table \@ref(tab:ampl-lme) and figure \@ref(fig:ampl-lme-graphs) for results from LMM. See table \@ref(tab:ampl-gam) and figure \@ref(fig:ampl-gam-graphs) for results from GAM. 
+
+```{r ampl-lme, cache=TRUE}
+coef_names <- tidy(m_ampl_long_1) %>% 
+  filter(str_starts(term, "sd_|cor_")) %>% 
+  pull(term)
+huxreg("Short" = m_ampl_short_1, "Long" = m_ampl_long_1, bold_signif = 0.05, 
+       error_pos = "same", 
+       statistics = c("AIC", "nobs"), omit_coefs = coef_names) %>% 
+  set_caption("Linear mixed models of vocalizations' average peak amplitude")
+```
+
+```{r amplitude-gam, cache=TRUE}
+texreg(list(m_ampl_short_2, m_ampl_long_2), bold = 0.05, 
+       single.row = TRUE, custom.model.names = c("Short", "Long"),
+       include.rsquared = FALSE, include.nsmooth = FALSE,
+       include.bic = FALSE, include.loglik = FALSE, include.deviance = FALSE,
+       include.dev.expl = FALSE, include.dispersion = FALSE, include.gcv = FALSE,
+       label = "tab:ampl-gam", caption = "Generalized additive models of vocalizations' average peak amplitude", caption.above = TRUE)
+```
+
+(ref:ampl-lme-gr) Fitted average peak amplitudes predicted by LMM. A: short vocalizations, B: long vocalizations.
+
+```{r ampl-lme-graphs, results="asis", fig.height=11, fig.width=10, fig.cap = "(ref:ampl-lme-gr)", cache=TRUE}
+cowplot::plot_grid(g_ampl_short_1, g_ampl_long_1, ncol = 1, labels = "AUTO")
+```
+
+(ref:ampl-gam-gr) Fitted average peak amplitudes predicted by GAM. A: short vocalizations, B: long vocalizations.
+
+```{r ampl-gam-graphs, results="asis", fig.height=11, fig.width=10, fig.cap = "(ref:ampl-gam-gr)", cache=TRUE}
+cowplot::plot_grid(g_ampl_short_2, g_ampl_long_2, ncol = 1, labels = "AUTO")
+```

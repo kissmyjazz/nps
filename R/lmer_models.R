@@ -83,7 +83,7 @@ fmla_dur_short_2 <- duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr'
   s(viieminutine_lqik, bs = 'cr', k = 6) +
   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
 m_dur_short_2 <- bam(fmla_dur_short_2, data = df_short, nthreads = 2, 
-                     family = gaussian(link = "log"))
+                     family = gaussian(link = "log"), method = "REML")
 summary(m_dur_short_2)
 AIC(m_dur_short_2)
 gam.check(m_dur_short_2)
@@ -144,7 +144,7 @@ fmla_dur_long_2 <- duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr',
   s(viieminutine_lqik, bs = 'cr', k = 6) +
   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
 m_dur_long_2 <- bam(fmla_dur_long_2, data = df_long, nthreads = 2, 
-                     family = Gamma())
+                     family = Gamma(), method = "REML")
 summary(m_dur_long_2)
 AIC(m_dur_long_2)
 gam.check(m_dur_long_2)
@@ -204,7 +204,7 @@ fmla_freq_short_2 <- average_peak_frequency ~ exp_phenotype +
   s(viieminutine_lqik, bs = 'cr', k = 6) +
   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
 m_freq_short_2 <- bam(fmla_freq_short_2, data = df_short, nthreads = 2, 
-                     family = Gamma())
+                     family = Gamma(), method = "REML")
 summary(m_freq_short_2)
 AIC(m_freq_short_2)
 gam.check(m_freq_short_2)
@@ -262,7 +262,7 @@ fmla_freq_long_2 <- average_peak_frequency ~ exp_phenotype +
   s(viieminutine_lqik, bs = 'cr', k = 6) +
   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
 m_freq_long_2 <- bam(fmla_freq_long_2, data = df_long, nthreads = 2, 
-                      family = Gamma())
+                      family = Gamma(), method = "REML")
 summary(m_freq_long_2)
 AIC(m_freq_long_2)
 gam.check(m_freq_long_2)
@@ -322,7 +322,7 @@ fmla_ampl_short_2 <- average_peak_amplitude ~ exp_phenotype +
   s(viieminutine_lqik, bs = 'cr', k = 6) +
   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
 m_ampl_short_2 <- bam(fmla_ampl_short_2, data = df_short, nthreads = 2, 
-                      family = gaussian())
+                      family = gaussian(), method = "REML")
 summary(m_ampl_short_2)
 AIC(m_ampl_short_2)
 gam.check(m_ampl_short_2)
@@ -380,7 +380,7 @@ fmla_ampl_long_2 <- average_peak_amplitude ~ exp_phenotype +
   s(viieminutine_lqik, bs = 'cr', k = 6) +
   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
 m_ampl_long_2 <- bam(fmla_ampl_long_2, data = df_long, nthreads = 2, 
-                     family = gaussian())
+                     family = gaussian(), method = "REML")
 summary(m_ampl_long_2)
 AIC(m_ampl_long_2)
 gam.check(m_ampl_long_2)
