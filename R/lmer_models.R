@@ -6,13 +6,11 @@ library(here)
 library(tidyverse)
 library(nlme)
 library(lme4)
-library(kableExtra)
 library(lmerTest)
 library(merTools)
 library(ggsci)
-library(huxtable)
-library(ggeffects)
 library(mgcv)
+library(mgcViz)
 options(scipen=999)
 options(huxtable.long_minus = TRUE)
 theme_set(theme_apa(base_size = 14) + theme(legend.position = "bottom"))
@@ -43,6 +41,9 @@ df_summary <- df %>% group_by(HE_LE, rott, viieminutine_lqik,
             peak_amplitude = mean(average_peak_amplitude), 
             duration = mean(duration_ms), vocalisations = n())
 ################################################################################
+# ggplot constants
+pd <- position_dodge(width = 0.15)
+################################################################################
 # models of duration
 # short calls
 # using lme with autocorrelated residuals
@@ -56,14 +57,14 @@ summary(m_dur_short_1)
 plot(m_dur_short_1, rott~resid(.))
 qqnorm(m_dur_short_1, ~resid(.))
 qqnorm(m_dur_short_1, ~ranef(.))
-path <- here("models", "m_dur_short_lme.rds")
-saveRDS(m_dur_short_1, path)
+# path <- here("models", "m_dur_short_lme.rds")
+# saveRDS(m_dur_short_1, path)
 
 g_m_dur_short_1 <- ggplot(df_short,
              aes(viieminutine_lqik, duration_ms, shape = HE_LE, group = HE_LE,
                  colour = HE_LE)) +
   stat_summary(fun = mean, geom="point") +
-  stat_summary(fun.data = mean_se, geom="pointrange") +
+  stat_summary(fun.data = mean_sdl, geom="pointrange") +
   stat_summary(aes(y = fitted(m_dur_short_1),
                    linetype = HE_LE),
                fun = mean, geom = "line") + scale_color_jco() +
@@ -73,8 +74,8 @@ g_m_dur_short_1 <- ggplot(df_short,
        title = "Third order polynomial model" )
 g_m_dur_short_1
 
-path <- here("graphs", "g_dur_short_lme.rds")
-saveRDS(g_m_dur_short_1, path)
+# path <- here("graphs", "g_dur_short_lme.rds")
+# saveRDS(g_m_dur_short_1, path)
 ################################################################################
 # fitting a smooth function of time and random intercept and slope
 # this model fits better
@@ -88,26 +89,34 @@ summary(m_dur_short_2)
 AIC(m_dur_short_2)
 gam.check(m_dur_short_2)
 plot(m_dur_short_2, shade = TRUE, pages = 1, scale = 0)
-path <- here("models", "m_dur_short_gam.rds")
-saveRDS(m_dur_short_2, path)
+# path <- here("models", "m_dur_short_gam.rds")
+# saveRDS(m_dur_short_2, path)
 
 g_m_dur_short_2 <- ggplot(df_short,
                          aes(viieminutine_lqik, duration_ms, shape = HE_LE, 
                              group = HE_LE,
                              colour = HE_LE)) +
-  stat_summary(fun = mean, geom="point") +
-  stat_summary(fun.data = mean_se, geom="pointrange") +
+  stat_summary(fun = mean, geom="point", size = 2.5, 
+               position = pd) +
+  stat_summary(fun.data = mean_cl_boot, geom="errorbar", width = 0.2,
+               position = pd) +
   stat_summary(aes(y = fitted(m_dur_short_2),
                    linetype = HE_LE),
-               fun = mean, geom = "line") + scale_color_jco() +
-  labs(x = "Time bin (5 min)",
+               fun = mean, geom = "line", position = pd) + 
+  scale_color_manual(values = c("LE" = "#008080", "HE" = "#ff8000")) +
+  scale_x_continuous(breaks = 1:6, labels = c("0-5 min", "5-10 min", "10-15 min",
+                                   "15-20 min", "20-25 min", "25-30 min")) +
+  labs(x = "Time bins",
        y = "Duration (ms)",
        shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype",
-       title = "Cubic regression spline model")
+       title = "Fitted values from cubic regression spline model") +
+  theme_apa(base_size = 13)
 g_m_dur_short_2
+path <- here("Figures", "gam_duration_short.pdf")
+ggsave(path, g_m_dur_short_2, width = 8, height = 6, dpi = 300)
 
-path <- here("graphs", "g_dur_short_gam.rds")
-saveRDS(g_m_dur_short_2, path)
+# path <- here("graphs", "g_dur_short_gam.rds")
+# saveRDS(g_m_dur_short_2, path)
 ################################################################################
 # long calls
 m_dur_long_1 <- lme(duration_ms ~ (ot1 + ot2 + ot3)*HE_LE,
@@ -116,8 +125,8 @@ m_dur_long_1 <- lme(duration_ms ~ (ot1 + ot2 + ot3)*HE_LE,
                     correlation = corAR1(form = ~ 1|rott),
                     control = lmeControl(opt = "optim", optimMethod = "SANN"))
 summary(m_dur_long_1)
-path <- here("models", "m_dur_long_lme.rds")
-saveRDS(m_dur_long_1, path)
+# path <- here("models", "m_dur_long_lme.rds")
+# saveRDS(m_dur_long_1, path)
 
 g_m_dur_long_1 <- ggplot(df_long,
                         aes(viieminutine_lqik, duration_ms, shape = HE_LE, 
@@ -134,8 +143,8 @@ g_m_dur_long_1 <- ggplot(df_long,
        title = "Third order polynomial model" )
 g_m_dur_long_1
 
-path <- here("graphs", "g_dur_long_lme.rds")
-saveRDS(g_m_dur_long_1, path)
+# path <- here("graphs", "g_dur_long_lme.rds")
+# saveRDS(g_m_dur_long_1, path)
 ################################################################################
 # fitting a smooth function of time and random intercept and slope
 # this model fits better
@@ -149,8 +158,8 @@ summary(m_dur_long_2)
 AIC(m_dur_long_2)
 gam.check(m_dur_long_2)
 plot(m_dur_long_2, shade = TRUE, pages = 1, scale = 0)
-path <- here("models", "m_dur_long_gam.rds")
-saveRDS(m_dur_long_2, path)
+# path <- here("models", "m_dur_long_gam.rds")
+# saveRDS(m_dur_long_2, path)
 
 g_m_dur_long_2 <- ggplot(df_long,
                           aes(viieminutine_lqik, duration_ms, shape = HE_LE, 
@@ -167,8 +176,8 @@ g_m_dur_long_2 <- ggplot(df_long,
        title = "Cubic regression spline model")
 g_m_dur_long_2
 
-path <- here("graphs", "g_dur_long_gam.rds")
-saveRDS(g_m_dur_long_2, path)
+# path <- here("graphs", "g_dur_long_gam.rds")
+# saveRDS(g_m_dur_long_2, path)
 ################################################################################
 ################################################################################
 # models of frequency
@@ -178,8 +187,8 @@ m_freq_short_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
                       data = df_short, method = "REML",
                       correlation = corAR1(form = ~ 1|rott))
 summary(m_freq_short_1)
-path <- here("models", "m_freq_short_lme.rds")
-saveRDS(m_freq_short_1, path)
+# path <- here("models", "m_freq_short_lme.rds")
+# saveRDS(m_freq_short_1, path)
 
 g_m_freq_short_1 <- ggplot(df_short,
                           aes(viieminutine_lqik, average_peak_frequency, 
@@ -196,8 +205,8 @@ g_m_freq_short_1 <- ggplot(df_short,
        title = "Third order polynomial model")
 g_m_freq_short_1
 
-path <- here("graphs", "g_freq_short_lme.rds")
-saveRDS(g_m_freq_short_1, path)
+# path <- here("graphs", "g_freq_short_lme.rds")
+# saveRDS(g_m_freq_short_1, path)
 ################################################################################
 fmla_freq_short_2 <- average_peak_frequency ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -209,8 +218,8 @@ summary(m_freq_short_2)
 AIC(m_freq_short_2)
 gam.check(m_freq_short_2)
 plot(m_freq_short_2, shade = TRUE, pages = 1, scale = 0)
-path <- here("models", "m_freq_short_gam.rds")
-saveRDS(m_freq_short_2, path)
+# path <- here("models", "m_freq_short_gam.rds")
+# saveRDS(m_freq_short_2, path)
 
 g_m_freq_short_2 <- ggplot(df_short,
                           aes(viieminutine_lqik, average_peak_frequency, shape = HE_LE, 
@@ -227,8 +236,8 @@ g_m_freq_short_2 <- ggplot(df_short,
        title = "Cubic regression spline model")
 g_m_freq_short_2
 
-path <- here("graphs", "g_freq_short_gam.rds")
-saveRDS(g_m_freq_short_2, path)
+# path <- here("graphs", "g_freq_short_gam.rds")
+# saveRDS(g_m_freq_short_2, path)
 ################################################################################
 # long calls
 m_freq_long_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
@@ -236,8 +245,8 @@ m_freq_long_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
                       data = df_long, method = "ML",
                       correlation = corAR1(form = ~ 1|rott))
 summary(m_freq_long_1)
-path <- here("models", "m_freq_long_lme.rds")
-saveRDS(m_freq_long_1, path)
+# path <- here("models", "m_freq_long_lme.rds")
+# saveRDS(m_freq_long_1, path)
 
 g_m_freq_long_1 <- ggplot(df_long,
                            aes(viieminutine_lqik, average_peak_frequency, 
@@ -254,8 +263,8 @@ g_m_freq_long_1 <- ggplot(df_long,
        title = "Third order polynomial model")
 g_m_freq_long_1
 
-path <- here("graphs", "g_freq_long_lme.rds")
-saveRDS(g_m_freq_long_1, path)
+# path <- here("graphs", "g_freq_long_lme.rds")
+# saveRDS(g_m_freq_long_1, path)
 ################################################################################
 fmla_freq_long_2 <- average_peak_frequency ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -267,8 +276,8 @@ summary(m_freq_long_2)
 AIC(m_freq_long_2)
 gam.check(m_freq_long_2)
 plot(m_freq_long_2, shade = TRUE, pages = 1, scale = 0)
-path <- here("models", "m_freq_long_gam.rds")
-saveRDS(m_freq_long_2, path)
+# path <- here("models", "m_freq_long_gam.rds")
+# saveRDS(m_freq_long_2, path)
 
 g_m_freq_long_2 <- ggplot(df_long,
                            aes(viieminutine_lqik, average_peak_frequency, shape = HE_LE, 
@@ -285,8 +294,8 @@ g_m_freq_long_2 <- ggplot(df_long,
        title = "Cubic regression spline model")
 g_m_freq_long_2
 
-path <- here("graphs", "g_freq_long_gam.rds")
-saveRDS(g_m_freq_long_2, path)
+# path <- here("graphs", "g_freq_long_gam.rds")
+# saveRDS(g_m_freq_long_2, path)
 ################################################################################
 ################################################################################
 # models of amplitude
@@ -296,8 +305,8 @@ m_ampl_short_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
                       data = df_short, method = "REML",
                       correlation = corAR1(form = ~ 1|rott))
 summary(m_ampl_short_1)
-path <- here("models", "m_ampl_short_lme.rds")
-saveRDS(m_ampl_short_1, path)
+# path <- here("models", "m_ampl_short_lme.rds")
+# saveRDS(m_ampl_short_1, path)
 
 g_m_ampl_short_1 <- ggplot(df_short,
                            aes(viieminutine_lqik, average_peak_amplitude, 
@@ -314,8 +323,8 @@ g_m_ampl_short_1 <- ggplot(df_short,
        title = "Third order polynomial model")
 g_m_ampl_short_1
 
-path <- here("graphs", "g_ampl_short_lme.rds")
-saveRDS(g_m_ampl_short_1, path)
+# path <- here("graphs", "g_ampl_short_lme.rds")
+# saveRDS(g_m_ampl_short_1, path)
 ################################################################################
 fmla_ampl_short_2 <- average_peak_amplitude ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -327,8 +336,8 @@ summary(m_ampl_short_2)
 AIC(m_ampl_short_2)
 gam.check(m_ampl_short_2)
 plot(m_ampl_short_2, shade = TRUE, pages = 1, scale = 0)
-path <- here("models", "m_ampl_short_gam.rds")
-saveRDS(m_ampl_short_2, path)
+# path <- here("models", "m_ampl_short_gam.rds")
+# saveRDS(m_ampl_short_2, path)
 
 g_m_ampl_short_2 <- ggplot(df_short,
                            aes(viieminutine_lqik, average_peak_amplitude, shape = HE_LE, 
@@ -345,8 +354,8 @@ g_m_ampl_short_2 <- ggplot(df_short,
        title = "Cubic regression spline model")
 g_m_ampl_short_2
 
-path <- here("graphs", "g_ampl_short_gam.rds")
-saveRDS(g_m_ampl_short_2, path)
+# path <- here("graphs", "g_ampl_short_gam.rds")
+# saveRDS(g_m_ampl_short_2, path)
 ################################################################################
 # long calls
 m_ampl_long_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
@@ -354,8 +363,8 @@ m_ampl_long_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
                      data = df_long, method = "ML",
                      correlation = corAR1(form = ~ 1|rott))
 summary(m_ampl_long_1)
-path <- here("models", "m_ampl_long_lme.rds")
-saveRDS(m_ampl_long_1, path)
+# path <- here("models", "m_ampl_long_lme.rds")
+# saveRDS(m_ampl_long_1, path)
 
 g_m_ampl_long_1 <- ggplot(df_long,
                           aes(viieminutine_lqik, average_peak_amplitude, 
@@ -372,8 +381,8 @@ g_m_ampl_long_1 <- ggplot(df_long,
        title = "Third order polynomial model")
 g_m_ampl_long_1
 
-path <- here("graphs", "g_ampl_long_lme.rds")
-saveRDS(g_m_ampl_long_1, path)
+# path <- here("graphs", "g_ampl_long_lme.rds")
+# saveRDS(g_m_ampl_long_1, path)
 ################################################################################
 fmla_ampl_long_2 <- average_peak_amplitude ~ exp_phenotype + 
   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
@@ -385,8 +394,8 @@ summary(m_ampl_long_2)
 AIC(m_ampl_long_2)
 gam.check(m_ampl_long_2)
 plot(m_ampl_long_2, shade = TRUE, pages = 1, scale = 0)
-path <- here("models", "m_ampl_long_gam.rds")
-saveRDS(m_ampl_long_2, path)
+# path <- here("models", "m_ampl_long_gam.rds")
+# saveRDS(m_ampl_long_2, path)
 
 g_m_ampl_long_2 <- ggplot(df_long,
                           aes(viieminutine_lqik, average_peak_amplitude, shape = HE_LE, 
@@ -403,6 +412,28 @@ g_m_ampl_long_2 <- ggplot(df_long,
        title = "Cubic regression spline model")
 g_m_ampl_long_2
 
-path <- here("graphs", "g_ampl_long_gam.rds")
-saveRDS(g_m_ampl_long_2, path)
+# path <- here("graphs", "g_ampl_long_gam.rds")
+# saveRDS(g_m_ampl_long_2, path)
+################################################################################
+# gratia
+m_dur_short_3 <- gam(duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr', 
+                                                     k = 6, by = exp_phenotype) + 
+                    s(viieminutine_lqik, bs = 'cr', k = 6) +
+                    s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're'),
+                    family = gaussian(link = "log"), method = "REML", 
+                    data = df_short)
+b_dur_short_3 <- getViz(m_dur_short_3)
+
+b_dur_short_3 <- plot(sm(b_dur_short_3, 1)) + l_fitLine(colour = "red", lwd = 1.2) + 
+  l_ciLine(level = 0.95, colour = "blue", linetype = 2, lwd = 1.2) + 
+  coord_cartesian(y = c(-0.3, 0.3)) + 
+  scale_x_continuous(breaks = 1:6, 
+                     labels = c("0-5 min", "5-10 min", "10-15 min",
+                     "15-20 min", "20-25 min", "25-30 min")) + 
+  labs(x = "Time bins",
+       y = NULL,
+       title = "Smoothed difference between LE and HE-rats") +
+  theme_apa()
+
+b_dur_short_3
 ################################################################################
