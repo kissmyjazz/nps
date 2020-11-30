@@ -17,13 +17,16 @@ library(ggplotify)
 library(Cairo)
 options(scipen=999)
 options(huxtable.long_minus = TRUE)
-loadfonts(device = "pdf")
+loadfonts()
 theme_set(theme_apa(base_size = 14, base_family = "Times New Roman") + 
   theme(axis.title.y = element_text(size = 18), 
         axis.text.y = element_text(size = 10, family = "Arial", colour = "black"),
-        axis.text.x = element_text(size = 14, colour = "black"),
+        axis.text.x = element_text(size = 12, colour = "black", face = "plain"),
         legend.position = "none", 
-        plot.margin = unit(c(1,1,1,1), "cm")))
+        plot.margin = ggplot2::margin(b = 0.5, l = 0.5, r = 0.4, t = 0.7, unit = "cm"),
+        axis.line = element_line(size = 0.8),
+        legend.key.size = unit(0.1, "cm"),
+        legend.background=element_blank()))
 
 path <- here("mod_data", "NPS_data.rds")
 df <- read_rds(path)
@@ -53,9 +56,12 @@ df_summary <- df %>% group_by(HE_LE, rott, viieminutine_lqik,
 ################################################################################
 # ggplot constants
 pd <- position_dodge(width = 0.15)
+# x_scl <- scale_x_continuous(breaks = 1:6, 
+#                    labels = c("0-5 min", "5-10 min", "10-15 min",
+#                               "15-20 min", "20-25 min", "25-30 min"))
 x_scl <- scale_x_continuous(breaks = 1:6, 
-                   labels = c("0-5 min", "5-10 min", "10-15 min",
-                              "15-20 min", "20-25 min", "25-30 min"))
+                            labels = c("0-5 min", "", "10-15 min", "",
+                                       "20-25 min", ""))
 c_scl <- scale_color_manual(values = c("LE" = "#008080", "HE" = "#ff8000"))
 mean_stats <- stat_summary(fun = mean, geom = "point", size = 2.5, 
              position = pd)
@@ -90,8 +96,8 @@ g_m_dur_short_1 <- ggplot(df_short,
   x_scl + 
   labs(x = NULL,
        y = "Duration (ms)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") + 
-  theme(legend.position = c(0.85, 0.85), axis.text.x = element_blank(), 
+       shape = NULL, linetype = NULL, colour = NULL) + 
+  theme(legend.position = c(0.80, 0.90), axis.text.x = element_blank(), 
         axis.title.y = element_blank())
 
 g_m_dur_short_1 
@@ -127,7 +133,7 @@ g_m_dur_short_2 <- ggplot(df_short,
   x_scl +
   labs(x = NULL,
        y = "Duration (ms)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") + 
+       shape = NULL, linetype = NULL, colour = NULL) + 
   theme(axis.title.y = element_blank())
 
 g_m_dur_short_2
@@ -158,7 +164,7 @@ g_m_dur_long_1 <- ggplot(df_long,
   x_scl +
   labs(x = NULL,
        y = "Duration (ms)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") + 
+       shape = NULL, linetype = NULL, colour = NULL) + 
   theme(axis.text.x = element_blank())
 g_m_dur_long_1
 
@@ -168,7 +174,7 @@ g_m_dur_long_1
 # fitting a smooth function of time and random intercept and slope
 # this model fits better
 # fmla_dur_long_2 <- duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr', 
-#                                                     k = 5, by = exp_phenotype) + 
+#                                                     k = 6, by = exp_phenotype) + 
 #   s(viieminutine_lqik, bs = 'cr', k = 6) +
 #   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
 # m_dur_long_2 <- bam(fmla_dur_long_2, data = df_long, nthreads = 2, 
@@ -192,7 +198,7 @@ g_m_dur_long_2 <- ggplot(df_long,
   x_scl +
   labs(x = NULL,
        y = "Duration (ms)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype")
+       shape = NULL, linetype = NULL, colour = NULL)
 g_m_dur_long_2
 
 # path <- here("graphs", "g_dur_long_gam.rds")
@@ -221,9 +227,9 @@ g_m_freq_short_1 <- ggplot(df_short,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak frequency (Hz)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") +
-  theme(legend.position = c(0.85, 0.2), axis.text.x = element_blank(), 
+       y = "Average peak\nfrequency (Hz)",
+       shape = NULL, linetype = NULL, colour = NULL) +
+  theme(legend.position = c(0.85, 0.22), axis.text.x = element_blank(), 
         axis.title.y = element_blank())
 g_m_freq_short_1
 
@@ -255,8 +261,8 @@ g_m_freq_short_2 <- ggplot(df_short,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak frequency (Hz)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") + 
+       y = "Average peak\nfrequency (Hz)",
+       shape = NULL, linetype = NULL, colour = NULL) + 
   theme(axis.title.y = element_blank())
 g_m_freq_short_2
 
@@ -284,8 +290,8 @@ g_m_freq_long_1 <- ggplot(df_long,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak frequency (Hz)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") + 
+       y = "Average peak\nfrequency (Hz)",
+       shape = NULL, linetype = NULL, colour = NULL) + 
   theme(axis.text.x = element_blank())
 g_m_freq_long_1
 
@@ -317,8 +323,8 @@ g_m_freq_long_2 <- ggplot(df_long,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak frequency (Hz)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype")
+       y = "Average peak\nfrequency (Hz)",
+       shape = NULL, linetype = NULL, colour = NULL)
 g_m_freq_long_2
 
 # path <- here("graphs", "g_freq_long_gam.rds")
@@ -347,9 +353,9 @@ g_m_ampl_short_1 <- ggplot(df_short,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak amplitude (dB)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") +
-  theme(legend.position = c(0.85, 0.85), axis.text.x = element_blank(),
+       y = "Average peak\namplitude (dB)",
+       shape = NULL, linetype = NULL, colour = NULL) +
+  theme(legend.position = c(0.80, 0.90), axis.text.x = element_blank(),
         axis.title.y = element_blank())
 
 g_m_ampl_short_1
@@ -382,8 +388,8 @@ g_m_ampl_short_2 <- ggplot(df_short,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak amplitude (dB)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") + 
+       y = "Average peak\namplitude (dB)",
+       shape = NULL, linetype = NULL, colour = NULL) + 
   theme(axis.title.y = element_blank())
 g_m_ampl_short_2
 
@@ -411,8 +417,8 @@ g_m_ampl_long_1 <- ggplot(df_long,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak amplitude (dB)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype") + 
+       y = "Average peak\namplitude (dB)",
+       shape = NULL, linetype = NULL, colour = NULL) + 
   theme(axis.text.x = element_blank())
 g_m_ampl_long_1
 
@@ -444,8 +450,8 @@ g_m_ampl_long_2 <- ggplot(df_long,
   c_scl +
   x_scl +
   labs(x = NULL,
-       y = "Average peak amplitude (dB)",
-       shape = "Phenotype", linetype = "Phenotype", colour = "Phenotype")
+       y = "Average peak\namplitude (dB)",
+       shape = NULL, linetype = NULL, colour = NULL)
 g_m_ampl_long_2
 
 # path <- here("graphs", "g_ampl_long_gam.rds")
@@ -460,32 +466,118 @@ g_m_ampl_long_2
 #                     family = gaussian(link = "log"), method = "REML", 
 #                     data = df_short)
 b_dur_short_3 <- getViz(m_dur_short_3)
-
-g_dur_short_3 <- plot(sm(b_dur_short_3, 1)) + l_fitLine(colour = "red", lwd = 1.0) + 
-  l_ciLine(level = 0.95, colour = "blue", linetype = 2, lwd = 1.0) + 
+g_dur_short_3 <- plot(sm(b_dur_short_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
+  l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
   coord_cartesian(y = c(-0.3, 0.3)) + 
   x_scl + 
   labs(x = NULL, y = NULL) + 
   theme(panel.border = element_blank(), axis.text = element_blank(), 
-        axis.ticks = element_blank())
-  
-
+        axis.ticks = element_blank(), 
+        rect = element_rect(fill = "transparent"))
 g_dur_short_3 <- g_dur_short_3 %>% gridPrint()
+
+# m_dur_long_3 <- gam(duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr',
+#                                                     k = 5, by = exp_phenotype) +
+#                       s(viieminutine_lqik, bs = 'cr', k = 6) +
+#                       s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're'),
+#                     data = df_long,
+#                     family = Gamma(), method = "REML")
+b_dur_long_3 <- getViz(m_dur_long_3)
+g_dur_long_3 <- plot(sm(b_dur_long_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
+  l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
+  x_scl + 
+  scale_y_continuous(trans = "reverse") + 
+  labs(x = NULL, y = NULL) + 
+  theme(panel.border = element_blank(), axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        rect = element_rect(fill = "transparent"))
+g_dur_long_3 <- g_dur_long_3 %>% gridPrint()
+
+b_freq_short_3 <- getViz(m_freq_short_2)
+g_freq_short_3 <- plot(sm(b_freq_short_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
+  l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
+  x_scl + 
+  scale_y_continuous(trans = "reverse") +
+  labs(x = NULL, y = NULL) + 
+  theme(panel.border = element_blank(), axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        rect = element_rect(fill = "transparent"))
+g_freq_short_3 <- g_freq_short_3 %>% gridPrint()
+
+b_freq_long_3 <- getViz(m_freq_long_2)
+g_freq_long_3 <- plot(sm(b_freq_long_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
+  l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
+  x_scl + 
+  scale_y_continuous(trans = "reverse") + 
+  labs(x = NULL, y = NULL) + 
+  theme(panel.border = element_blank(), axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        rect = element_rect(fill = "transparent"))
+g_freq_long_3 <- g_freq_long_3 %>% gridPrint()
+
+b_ampl_short_3 <- getViz(m_ampl_short_2)
+g_ampl_short_3 <- plot(sm(b_ampl_short_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
+  l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
+  x_scl + 
+  labs(x = NULL, y = NULL) + 
+  theme(panel.border = element_blank(), axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        rect = element_rect(fill = "transparent"))
+g_ampl_short_3 <- g_ampl_short_3 %>% gridPrint()
+
+b_ampl_long_3 <- getViz(m_ampl_long_2)
+g_ampl_long_3 <- plot(sm(b_ampl_long_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
+  l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
+  x_scl + 
+  labs(x = NULL, y = NULL) + 
+  theme(panel.border = element_blank(), axis.text = element_blank(), 
+        axis.ticks = element_blank(), 
+        rect = element_rect(fill = "transparent"))
+g_ampl_long_3 <- g_ampl_long_3 %>% gridPrint()
 ################################################################################
 # cowplot grids
 grid_dur <- plot_grid(g_m_dur_long_1, g_m_dur_short_1, g_m_dur_long_2, g_m_dur_short_2, 
-          ncol = 2, align = "hv", axis = "lb", labels = "AUTO", 
-          label_fontfamily = "Times New Roman", label_size = 16, rel_widths = c(1, 1))
+          ncol = 2, labels = "AUTO", scale = 1,
+          label_fontfamily = "Times New Roman", label_size = 16, rel_widths = c(1.11, 1))
 grid_freq <- plot_grid(g_m_freq_long_1, g_m_freq_short_1, g_m_freq_long_2, g_m_freq_short_2, 
-          ncol = 2, align = "hv", axis = "lb", labels = "AUTO", 
-          label_fontfamily = "Times New Roman", label_size = 16, rel_widths = c(1, 1))
+          ncol = 2, labels = "AUTO", 
+          label_fontfamily = "Times New Roman", label_size = 16, rel_widths = c(1.17, 1))
 grid_ampl <- plot_grid(g_m_ampl_long_1, g_m_ampl_short_1, g_m_ampl_long_2, g_m_ampl_short_2, 
-             ncol = 2, align = "hv", axis = "lb", labels = "AUTO", 
-             label_fontfamily = "Times New Roman", label_size = 16, rel_widths = c(1, 1))
+             ncol = 2, labels = "AUTO", 
+             label_fontfamily = "Times New Roman", label_size = 16, rel_widths = c(1.17, 1))
 
 # draw insets
-grid_dur_inset <- ggdraw(grid_dur) + draw_plot(g_dur_short_3, x = 0.79, y = 0.33, 
-                                               width = 0.19, height = 0.19)
+grid_dur_inset <- ggdraw(grid_dur) + draw_plot(g_dur_short_3, x = 0.81, y = 0.34, 
+                                               width = 0.15, height = 0.15) +
+  draw_plot(g_dur_long_3, x = 0.36, y = 0.34, 
+            width = 0.15, height = 0.15)
+
+grid_freq_inset <- ggdraw(grid_freq) + draw_plot(g_freq_short_3, x = 0.81, y = 0.12, 
+                                               width = 0.15, height = 0.15) +
+  draw_plot(g_freq_long_3, x = 0.36, y = 0.12, 
+            width = 0.15, height = 0.15)
+
+grid_ampl_inset <- ggdraw(grid_ampl) + draw_plot(g_ampl_short_3, x = 0.81, y = 0.33, 
+                                                width = 0.15, height = 0.15) +
+  draw_plot(g_ampl_long_3, x = 0.36, y = 0.33, 
+            width = 0.15, height = 0.15)
+################################################################################
+# save files
 path <- here("Figures", "grid_dur.pdf")
 save_plot(path, grid_dur, base_width = 7.08661, base_height = 4.72441)
+
+path <- here("Figures", "grid_freq.pdf")
+save_plot(path, grid_freq, base_width = 7.08661, base_height = 4.72441)
+
+path <- here("Figures", "grid_ampl.pdf")
+save_plot(path, grid_ampl, base_width = 7.08661, base_height = 4.72441)
+
+path <- here("Figures", "grid_dur_splines.pdf")
+save_plot(path, grid_dur_inset, base_width = 7.08661, base_height = 4.72441)
+
+path <- here("Figures", "grid_freq_splines.pdf")
+save_plot(path, grid_freq_inset, base_width = 7.08661, base_height = 4.72441)
+
+path <- here("Figures", "grid_ampl_splines.pdf")
+save_plot(path, grid_ampl_inset, base_width = 7.08661, base_height = 4.72441)
 ################################################################################
