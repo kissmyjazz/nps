@@ -17,7 +17,6 @@ library(ggplotify)
 library(Cairo)
 options(scipen=999)
 options(huxtable.long_minus = TRUE)
-loadfonts()
 theme_set(theme_apa(base_size = 14, base_family = "Times New Roman") + 
   theme(axis.title.y = element_text(size = 18), 
         axis.text.y = element_text(size = 10, family = "Arial", colour = "black"),
@@ -73,10 +72,10 @@ cl_stats <- stat_summary(fun.data = mean_cl_boot, geom = "errorbar", width = 0.2
 # using lme with autocorrelated residuals
 # best model with polynomial decomposition of time and order 1 autocorrelation 
 # of residuals 
-# m_dur_short_1 <- lme(duration_ms ~ (ot1 + ot2 + ot3)*HE_LE,
-#                      random = list(rott =~ ot1 + ot2),
-#                      data = df_short, method = "REML",
-#                      correlation = corAR1(form = ~ 1|rott))
+m_dur_short_1 <- lme(duration_ms ~ (ot1 + ot2 + ot3)*HE_LE,
+                     random = list(rott =~ ot1 + ot2),
+                     data = df_short, method = "REML",
+                     correlation = corAR1(form = ~ 1|rott))
 # summary(m_dur_short_1)
 # plot(m_dur_short_1, rott~resid(.))
 # qqnorm(m_dur_short_1, ~resid(.))
@@ -107,12 +106,12 @@ g_m_dur_short_1
 ################################################################################
 # fitting a smooth function of time and random intercept and slope
 # this model fits better
-# fmla_dur_short_2 <- duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr', 
-#                                             k = 6, by = exp_phenotype) + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6) +
-#   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
-# m_dur_short_2 <- bam(fmla_dur_short_2, data = df_short, nthreads = 2, 
-#                      family = gaussian(link = "log"), method = "REML")
+fmla_dur_short_2 <- duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr',
+                                            k = 6, by = exp_phenotype) +
+  s(viieminutine_lqik, bs = 'cr', k = 6) +
+  s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
+m_dur_short_2 <- bam(fmla_dur_short_2, data = df_short, nthreads = 2,
+                     family = gaussian(link = "log"), method = "REML")
 # summary(m_dur_short_2)
 # AIC(m_dur_short_2)
 # gam.check(m_dur_short_2)
@@ -142,11 +141,11 @@ g_m_dur_short_2
 # saveRDS(g_m_dur_short_2, path)
 ################################################################################
 # long calls
-# m_dur_long_1 <- lme(duration_ms ~ (ot1 + ot2 + ot3)*HE_LE,
-#                     random = list(rott =~ ot1 + ot2 + ot3),
-#                     data = df_long, method = "REML",
-#                     correlation = corAR1(form = ~ 1|rott),
-#                     control = lmeControl(opt = "optim", optimMethod = "SANN"))
+m_dur_long_1 <- lme(duration_ms ~ (ot1 + ot2 + ot3)*HE_LE,
+                    random = list(rott =~ ot1 + ot2 + ot3),
+                    data = df_long, method = "REML",
+                    correlation = corAR1(form = ~ 1|rott),
+                    control = lmeControl(opt = "optim", optimMethod = "SANN"))
 # summary(m_dur_long_1)
 # path <- here("models", "m_dur_long_lme.rds")
 # saveRDS(m_dur_long_1, path)
@@ -173,12 +172,12 @@ g_m_dur_long_1
 ################################################################################
 # fitting a smooth function of time and random intercept and slope
 # this model fits better
-# fmla_dur_long_2 <- duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr', 
-#                                                     k = 6, by = exp_phenotype) + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6) +
-#   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
-# m_dur_long_2 <- bam(fmla_dur_long_2, data = df_long, nthreads = 2, 
-#                      family = Gamma(), method = "REML")
+fmla_dur_long_2 <- duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr',
+                                                    k = 6, by = exp_phenotype) +
+  s(viieminutine_lqik, bs = 'cr', k = 6) +
+  s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
+m_dur_long_2 <- bam(fmla_dur_long_2, data = df_long, nthreads = 2,
+                     family = Gamma(), method = "REML")
 # summary(m_dur_long_2)
 # AIC(m_dur_long_2)
 # gam.check(m_dur_long_2)
@@ -207,10 +206,10 @@ g_m_dur_long_2
 ################################################################################
 # models of frequency
 # short calls
-# m_freq_short_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
-#                       random = list(rott =~ ot1 + ot2 + ot3),
-#                       data = df_short, method = "REML",
-#                       correlation = corAR1(form = ~ 1|rott))
+m_freq_short_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
+                      random = list(rott =~ ot1 + ot2 + ot3),
+                      data = df_short, method = "REML",
+                      correlation = corAR1(form = ~ 1|rott))
 # summary(m_freq_short_1)
 # path <- here("models", "m_freq_short_lme.rds")
 # saveRDS(m_freq_short_1, path)
@@ -236,12 +235,12 @@ g_m_freq_short_1
 # path <- here("graphs", "g_freq_short_lme.rds")
 # saveRDS(g_m_freq_short_1, path)
 ################################################################################
-# fmla_freq_short_2 <- average_peak_frequency ~ exp_phenotype + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6) +
-#   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
-# m_freq_short_2 <- bam(fmla_freq_short_2, data = df_short, nthreads = 2, 
-#                      family = Gamma(), method = "REML")
+fmla_freq_short_2 <- average_peak_frequency ~ exp_phenotype +
+  s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) +
+  s(viieminutine_lqik, bs = 'cr', k = 6) +
+  s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
+m_freq_short_2 <- bam(fmla_freq_short_2, data = df_short, nthreads = 2,
+                     family = Gamma(), method = "REML")
 # summary(m_freq_short_2)
 # AIC(m_freq_short_2)
 # gam.check(m_freq_short_2)
@@ -270,10 +269,10 @@ g_m_freq_short_2
 # saveRDS(g_m_freq_short_2, path)
 ################################################################################
 # long calls
-# m_freq_long_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
-#                       random = list(rott =~ ot1 + ot2 + ot3),
-#                       data = df_long, method = "ML",
-#                       correlation = corAR1(form = ~ 1|rott))
+m_freq_long_1 <- lme(average_peak_frequency ~ (ot1 + ot2 + ot3)*HE_LE,
+                      random = list(rott =~ ot1 + ot2 + ot3),
+                      data = df_long, method = "ML",
+                      correlation = corAR1(form = ~ 1|rott))
 # summary(m_freq_long_1)
 # path <- here("models", "m_freq_long_lme.rds")
 # saveRDS(m_freq_long_1, path)
@@ -298,12 +297,12 @@ g_m_freq_long_1
 # path <- here("graphs", "g_freq_long_lme.rds")
 # saveRDS(g_m_freq_long_1, path)
 ################################################################################
-# fmla_freq_long_2 <- average_peak_frequency ~ exp_phenotype + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6) +
-#   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
-# m_freq_long_2 <- bam(fmla_freq_long_2, data = df_long, nthreads = 2, 
-#                       family = Gamma(), method = "REML")
+fmla_freq_long_2 <- average_peak_frequency ~ exp_phenotype +
+  s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) +
+  s(viieminutine_lqik, bs = 'cr', k = 6) +
+  s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
+m_freq_long_2 <- bam(fmla_freq_long_2, data = df_long, nthreads = 2,
+                      family = Gamma(), method = "REML")
 # summary(m_freq_long_2)
 # AIC(m_freq_long_2)
 # gam.check(m_freq_long_2)
@@ -333,11 +332,11 @@ g_m_freq_long_2
 ################################################################################
 # models of amplitude
 # short calls
-# m_ampl_short_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
-#                       random = list(rott =~ ot1 + ot2),
-#                       data = df_short, method = "REML",
-#                       correlation = corAR1(form = ~ 1|rott))
-# summary(m_ampl_short_1)
+m_ampl_short_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
+                      random = list(rott =~ ot1 + ot2),
+                      data = df_short, method = "REML",
+                      correlation = corAR1(form = ~ 1|rott))
+summary(m_ampl_short_1)
 # path <- here("models", "m_ampl_short_lme.rds")
 # saveRDS(m_ampl_short_1, path)
 
@@ -363,12 +362,12 @@ g_m_ampl_short_1
 # path <- here("graphs", "g_ampl_short_lme.rds")
 # saveRDS(g_m_ampl_short_1, path)
 ################################################################################
-# fmla_ampl_short_2 <- average_peak_amplitude ~ exp_phenotype + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6) +
-#   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
-# m_ampl_short_2 <- bam(fmla_ampl_short_2, data = df_short, nthreads = 2, 
-#                       family = gaussian(), method = "REML")
+fmla_ampl_short_2 <- average_peak_amplitude ~ exp_phenotype +
+  s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) +
+  s(viieminutine_lqik, bs = 'cr', k = 6) +
+  s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
+m_ampl_short_2 <- bam(fmla_ampl_short_2, data = df_short, nthreads = 2,
+                      family = gaussian(), method = "REML")
 # summary(m_ampl_short_2)
 # AIC(m_ampl_short_2)
 # gam.check(m_ampl_short_2)
@@ -397,10 +396,10 @@ g_m_ampl_short_2
 # saveRDS(g_m_ampl_short_2, path)
 ################################################################################
 # long calls
-# m_ampl_long_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
-#                      random = list(rott =~ ot1 + ot2 + ot3),
-#                      data = df_long, method = "ML",
-#                      correlation = corAR1(form = ~ 1|rott))
+m_ampl_long_1 <- lme(average_peak_amplitude ~ (ot1 + ot2 + ot3)*HE_LE,
+                     random = list(rott =~ ot1 + ot2 + ot3),
+                     data = df_long, method = "ML",
+                     correlation = corAR1(form = ~ 1|rott))
 # summary(m_ampl_long_1)
 # path <- here("models", "m_ampl_long_lme.rds")
 # saveRDS(m_ampl_long_1, path)
@@ -425,12 +424,12 @@ g_m_ampl_long_1
 # path <- here("graphs", "g_ampl_long_lme.rds")
 # saveRDS(g_m_ampl_long_1, path)
 ################################################################################
-# fmla_ampl_long_2 <- average_peak_amplitude ~ exp_phenotype + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) + 
-#   s(viieminutine_lqik, bs = 'cr', k = 6) +
-#   s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
-# m_ampl_long_2 <- bam(fmla_ampl_long_2, data = df_long, nthreads = 2, 
-#                      family = gaussian(), method = "REML")
+fmla_ampl_long_2 <- average_peak_amplitude ~ exp_phenotype +
+  s(viieminutine_lqik, bs = 'cr', k = 6, by = exp_phenotype) +
+  s(viieminutine_lqik, bs = 'cr', k = 6) +
+  s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're')
+m_ampl_long_2 <- bam(fmla_ampl_long_2, data = df_long, nthreads = 2,
+                     family = gaussian(), method = "REML")
 # summary(m_ampl_long_2)
 # AIC(m_ampl_long_2)
 # gam.check(m_ampl_long_2)
@@ -459,12 +458,12 @@ g_m_ampl_long_2
 ################################################################################
 ################################################################################
 # plot of the spline shape
-# m_dur_short_3 <- gam(duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr', 
-#                                                      k = 6, by = exp_phenotype) + 
-#                     s(viieminutine_lqik, bs = 'cr', k = 6) +
-#                     s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're'),
-#                     family = gaussian(link = "log"), method = "REML", 
-#                     data = df_short)
+m_dur_short_3 <- gam(duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr',
+                                                     k = 6, by = exp_phenotype) +
+                    s(viieminutine_lqik, bs = 'cr', k = 6) +
+                    s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're'),
+                    family = gaussian(link = "log"), method = "REML",
+                    data = df_short)
 b_dur_short_3 <- getViz(m_dur_short_3)
 g_dur_short_3 <- plot(sm(b_dur_short_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
   l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
@@ -476,12 +475,12 @@ g_dur_short_3 <- plot(sm(b_dur_short_3, 1)) + l_fitLine(colour = "red", lwd = 0.
         rect = element_rect(fill = "transparent"))
 g_dur_short_3 <- g_dur_short_3 %>% gridPrint()
 
-# m_dur_long_3 <- gam(duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr',
-#                                                     k = 5, by = exp_phenotype) +
-#                       s(viieminutine_lqik, bs = 'cr', k = 6) +
-#                       s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're'),
-#                     data = df_long,
-#                     family = Gamma(), method = "REML")
+m_dur_long_3 <- gam(duration_ms ~ exp_phenotype + s(viieminutine_lqik, bs = 'cr',
+                                                    k = 5, by = exp_phenotype) +
+                      s(viieminutine_lqik, bs = 'cr', k = 6) +
+                      s(rott, bs = 're') + s(rott, viieminutine_lqik, bs = 're'),
+                    data = df_long,
+                    family = Gamma(), method = "REML")
 b_dur_long_3 <- getViz(m_dur_long_3)
 g_dur_long_3 <- plot(sm(b_dur_long_3, 1)) + l_fitLine(colour = "red", lwd = 0.8) + 
   l_ciLine(level = 0.95, colour = "blue", linetype = 3, lwd = 0.8) + 
@@ -562,22 +561,46 @@ grid_ampl_inset <- ggdraw(grid_ampl) + draw_plot(g_ampl_short_3, x = 0.81, y = 0
   draw_plot(g_ampl_long_3, x = 0.36, y = 0.33, 
             width = 0.15, height = 0.15)
 ################################################################################
-# save files
-path <- here("Figures", "grid_dur.pdf")
-save_plot(path, grid_dur, base_width = 7.08661, base_height = 4.72441)
-
-path <- here("Figures", "grid_freq.pdf")
-save_plot(path, grid_freq, base_width = 7.08661, base_height = 4.72441)
-
-path <- here("Figures", "grid_ampl.pdf")
-save_plot(path, grid_ampl, base_width = 7.08661, base_height = 4.72441)
-
-path <- here("Figures", "grid_dur_splines.pdf")
-save_plot(path, grid_dur_inset, base_width = 7.08661, base_height = 4.72441)
-
-path <- here("Figures", "grid_freq_splines.pdf")
-save_plot(path, grid_freq_inset, base_width = 7.08661, base_height = 4.72441)
-
-path <- here("Figures", "grid_ampl_splines.pdf")
-save_plot(path, grid_ampl_inset, base_width = 7.08661, base_height = 4.72441)
+# # save files
+# path <- here("Figures", "grid_dur.pdf")
+# save_plot(path, grid_dur, base_width = 7.08661, base_height = 4.72441)
+# 
+# path <- here("Figures", "grid_freq.pdf")
+# save_plot(path, grid_freq, base_width = 7.08661, base_height = 4.72441)
+# 
+# path <- here("Figures", "grid_ampl.pdf")
+# save_plot(path, grid_ampl, base_width = 7.08661, base_height = 4.72441)
+# 
+# path <- here("Figures", "grid_dur_splines.pdf")
+# save_plot(path, grid_dur_inset, base_width = 7.08661, base_height = 4.72441)
+# 
+# path <- here("Figures", "grid_freq_splines.pdf")
+# save_plot(path, grid_freq_inset, base_width = 7.08661, base_height = 4.72441)
+# 
+# path <- here("Figures", "grid_ampl_splines.pdf")
+# save_plot(path, grid_ampl_inset, base_width = 7.08661, base_height = 4.72441)
 ################################################################################
+# save files as jpegs
+path <- here("Figures", "grid_dur.tiff")
+save_plot(path, grid_dur, base_width = 7.08661, base_height = 4.72441, 
+          dpi = 600)
+
+path <- here("Figures", "grid_freq.tiff")
+save_plot(path, grid_freq, base_width = 7.08661, base_height = 4.72441, 
+          dpi = 600)
+
+path <- here("Figures", "grid_ampl.tiff")
+save_plot(path, grid_ampl, base_width = 7.08661, base_height = 4.72441, 
+          dpi = 600)
+
+path <- here("Figures", "grid_dur_splines.tiff")
+save_plot(path, grid_dur_inset, base_width = 7.08661, base_height = 4.72441, 
+          dpi = 600)
+
+path <- here("Figures", "grid_freq_splines.tiff")
+save_plot(path, grid_freq_inset, base_width = 7.08661, base_height = 4.72441, 
+          dpi = 600)
+
+path <- here("Figures", "grid_ampl_splines.tiff")
+save_plot(path, grid_ampl_inset, base_width = 7.08661, base_height = 4.72441, 
+          dpi = 600)
