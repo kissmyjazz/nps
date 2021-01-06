@@ -581,26 +581,26 @@ grid_ampl_inset <- ggdraw(grid_ampl) + draw_plot(g_ampl_short_3, x = 0.81, y = 0
 # save_plot(path, grid_ampl_inset, base_width = 7.08661, base_height = 4.72441)
 ################################################################################
 # save files as jpegs
-path <- here("Figures", "grid_dur.tiff")
+path <- here("Figures", "grid_dur_1200.jpg")
 save_plot(path, grid_dur, base_width = 7.08661, base_height = 4.72441, 
-          dpi = 600)
+          dpi = 1200)
 
-path <- here("Figures", "grid_freq.tiff")
+path <- here("Figures", "grid_freq_1200.jpg")
 save_plot(path, grid_freq, base_width = 7.08661, base_height = 4.72441, 
-          dpi = 600)
+          dpi = 1200)
 
-path <- here("Figures", "grid_ampl.tiff")
+path <- here("Figures", "grid_ampl_1200.jpg")
 save_plot(path, grid_ampl, base_width = 7.08661, base_height = 4.72441, 
-          dpi = 600)
+          dpi = 1200)
 
-path <- here("Figures", "grid_dur_splines.tiff")
+path <- here("Figures", "grid_dur_splines_1200.jpg")
 save_plot(path, grid_dur_inset, base_width = 7.08661, base_height = 4.72441, 
-          dpi = 600)
+          dpi = 1200)
 
-path <- here("Figures", "grid_freq_splines.tiff")
+path <- here("Figures", "grid_freq_splines_1200.jpg")
 save_plot(path, grid_freq_inset, base_width = 7.08661, base_height = 4.72441, 
-          dpi = 600)
+          dpi = 1200)
 
-path <- here("Figures", "grid_ampl_splines.tiff")
+path <- here("Figures", "grid_ampl_splines_1200.jpg")
 save_plot(path, grid_ampl_inset, base_width = 7.08661, base_height = 4.72441, 
-          dpi = 600)
+          dpi = 1200)
